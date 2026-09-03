@@ -1,4 +1,4 @@
-import flask, requests
+import flask, requests, json
 
 def emotion_detector(text_to_analyze): # Define a function named emotion_detector that take a string input text_to_analyze
     url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'  # URL for the emotion analysis server
@@ -6,4 +6,14 @@ def emotion_detector(text_to_analyze): # Define a function named emotion_detecto
     myobj = { "raw_document": { "text": text_to_analyze } } # Create a dictionary with the text to be analyzed
     
     response = requests.post(url, json=myobj, headers=headers) # Send a POST request to the API with the text and headers# Send a POST request to the API with the text and headers
-    return response.text
+   
+    formatted_response = json.loads(response.text)
+    emotions = formatted_response["emotionPredictions"][0]["emotion"]
+    dominant_emotion = sorted(emotions.items(), key = lambda item: item[1])[-1]
+    emotions["dominant_emotion"] = dominant_emotion[0]
+
+    return emotions
+
+#if __name__ == "__main__":
+#    outcome = emotion_detector("I love this technology")
+#    print(outcome)
